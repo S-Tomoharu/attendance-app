@@ -35,7 +35,11 @@ if (!action && (!userId || !userName)) {
 
 
 // ユーザー名を表示
-document.getElementById('user-name').textContent = `${userName} さん`;
+if (userName) {
+    document.getElementById('user-name').textContent = `${userName} さん`;
+}
+
+//document.getElementById('user-name').textContent = `${userName} さん`;
 
 // ログアウト
 document.getElementById('logout-btn').addEventListener('click', () => {
