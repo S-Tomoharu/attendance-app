@@ -131,8 +131,6 @@ async function loadTodayStatus() {
     }
 }
 
-// ページ読み込み時に今日の記録を表示
-loadTodayStatus();
 
 
 // URLパラメータでの自動記録処理
