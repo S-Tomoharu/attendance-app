@@ -20,8 +20,8 @@ const database = getDatabase(app);
 
 // URLパラメータをチェック
 const params = new URLSearchParams(window.location.search);
-const action = params.get('action');
-const urlUserId = params.get('userId');
+let action = params.get('action');
+let urlUserId = params.get('userId');
 
 // ログインチェック（URLパラメータがある場合はスキップ）
 let userId = localStorage.getItem('userId');
