@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン - 出退勤記録</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .btn-login:hover {
+            background: #5568d3;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container login-container">
+        <h1>ログイン</h1>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="name">名前</label>
+                <input type="text" id="name" required autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label for="pin">PIN（4桁）</label>
+                <input type="password" id="pin" maxlength="4" pattern="[0-9]{4}" required>
+            </div>
+            
+            <button type="submit" class="btn-login">ログイン</button>
+        </form>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="register-link">
+            初めての方は <a href="register.html">新規登録</a>
+        </div>
+    </div>
+
+    <script type="module" src="login.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出退勤記録</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+   <!-- ここから追加 -->
+    <div style="position: absolute; top: 20px; right: 20px; color: white;">
+        <span id="user-name"></span>
+        <button id="logout-btn" style="margin-left: 10px; padding: 8px 16px; background: rgba(255,255,255,0.2); border: 1px solid white; border-radius: 6px; color: white; cursor: pointer;">ログアウト</button>
+    </div>
+    <!-- ここまで追加 -->
+
+
+
+  
+    <div class="container">
+        <h1>出退勤記録</h1>
+        
+        <div class="status">
+            <p id="current-time"></p>
+            <p id="today-status">今日の記録: 未記録</p>
+        </div>
+
+        <div class="buttons">
+            <button id="checkin-btn" class="btn btn-checkin">出勤</button>
+            <button id="checkout-btn" class="btn btn-checkout">退勤</button>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <!-- Firebase SDKを読み込み -->
+    <script type="module">
+        // ここに先ほどコピーしたFirebase設定を貼り付けます（次のステップで）
+    </script>
+    
+    <script src="app.js" type="module"></script>
+</body>
+</html>
