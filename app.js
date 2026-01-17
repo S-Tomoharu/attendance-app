@@ -132,7 +132,6 @@ async function loadTodayStatus() {
 }
 
 
-
 // URLパラメータでの自動記録処理
 if (action && urlUserId) {
     // URLパラメータでアクセスした場合、自動ログインして記録
