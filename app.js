@@ -148,15 +148,18 @@ if (action && urlUserId) {
             const today = getTodayDate();
             const time = getCurrentTime();
             
-            if (action === 'checkin') {
+if (action === 'checkin') {
                 set(ref(database, `users/${urlUserId}/records/${today}/checkin`), time)
                     .then(() => {
-                        showMessage(`出勤記録: ${time}`, 'success');
-                        loadTodayStatus();
-                        // URLパラメータを削除
+                        // 完了画面を表示
+                        document.getElementById('completion-message').textContent = '出勤記録完了';
+                        document.getElementById('completion-time').textContent = time;
+                        document.getElementById('completion-overlay').style.display = 'flex';
+                        
+                        // 3秒後に閉じる
                         setTimeout(() => {
-                            window.history.replaceState({}, '', window.location.pathname);
-                        }, 2000);
+                            window.close();
+                        }, 3000);
                     })
                     .catch(error => {
                         showMessage('エラーが発生しました', 'error');
@@ -165,19 +168,21 @@ if (action && urlUserId) {
             } else if (action === 'checkout') {
                 set(ref(database, `users/${urlUserId}/records/${today}/checkout`), time)
                     .then(() => {
-                        showMessage(`退勤記録: ${time}`, 'success');
-                        loadTodayStatus();
-                        // URLパラメータを削除
+                        // 完了画面を表示
+                        document.getElementById('completion-message').textContent = '退勤記録完了';
+                        document.getElementById('completion-time').textContent = time;
+                        document.getElementById('completion-overlay').style.display = 'flex';
+                        
+                        // 3秒後に閉じる
                         setTimeout(() => {
-                            window.history.replaceState({}, '', window.location.pathname);
-                        }, 2000);
+                            window.close();
+                        }, 3000);
                     })
                     .catch(error => {
                         showMessage('エラーが発生しました', 'error');
                         console.error(error);
                     });
-            }
-        } else {
+            } else {
             showMessage('ユーザーが見つかりません', 'error');
         }
     }).catch(error => {
@@ -187,6 +192,6 @@ if (action && urlUserId) {
 } else if (userId && userName) {
     // 通常ログインの場合、ユーザー名を表示
     document.getElementById('user-name').textContent = `${userName} さん`;
-    loadTodayStatus();  // ← この行を追加
+    loadTodayStatus();
 }
 
