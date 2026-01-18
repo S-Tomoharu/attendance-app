@@ -195,3 +195,18 @@ if (action === 'checkin') {
     loadTodayStatus();
 }
 
+
+// Service Worker登録（PWA対応）
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/attendance-app/sw.js')
+            .then(registration => {
+                console.log('Service Worker registered:', registration);
+            })
+            .catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+    });
+}
+
+    
