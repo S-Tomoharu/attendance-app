@@ -182,7 +182,8 @@ if (action === 'checkin') {
                         showMessage('エラーが発生しました', 'error');
                         console.error(error);
                     });
-            } else {
+	    }
+	    } else {
             showMessage('ユーザーが見つかりません', 'error');
         }
     }).catch(error => {
