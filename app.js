@@ -187,5 +187,6 @@ if (action && urlUserId) {
 } else if (userId && userName) {
     // 通常ログインの場合、ユーザー名を表示
     document.getElementById('user-name').textContent = `${userName} さん`;
+    loadTodayStatus();  // ← この行を追加
 }
 
