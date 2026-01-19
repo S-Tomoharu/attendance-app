@@ -148,7 +148,7 @@ if (action && urlUserId) {
             const today = getTodayDate();
             const time = getCurrentTime();
             
-if (action === 'checkin') {
+            if (action === 'checkin') {
                 set(ref(database, `users/${urlUserId}/records/${today}/checkin`), time)
                     .then(() => {
                         // 完了画面を表示
@@ -182,10 +182,10 @@ if (action === 'checkin') {
                         showMessage('エラーが発生しました', 'error');
                         console.error(error);
                     });
-	    } else {
-            showMessage('ユーザーが見つかりません', 'error');
             }
-	}
+        } else {
+            showMessage('ユーザーが見つかりません', 'error');
+        }
     }).catch(error => {
         console.error(error);
         showMessage('エラーが発生しました', 'error');
