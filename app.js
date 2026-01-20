@@ -17,29 +17,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-
 // URLパラメータをチェック
 const params = new URLSearchParams(window.location.search);
-var action = params.get('action');
-var urlUserId = params.get('userId');
+const action = params.get('action');
+const urlUserId = params.get('userId');
 
 // ログインチェック（URLパラメータがある場合はスキップ）
 let userId = localStorage.getItem('userId');
 let userName = localStorage.getItem('userName');
 
 if (!action && (!userId || !userName)) {
-    // URLパラメータもなく、ログインもしていない場合はログイン画面へ
     window.location.href = 'login.html';
 }
-
-
 
 // ユーザー名を表示
 if (userName) {
     document.getElementById('user-name').textContent = `${userName} さん`;
 }
-
-//document.getElementById('user-name').textContent = `${userName} さん`;
 
 // ログアウト
 document.getElementById('logout-btn').addEventListener('click', () => {
@@ -72,13 +66,13 @@ function showMessage(text, type) {
 // 今日の日付取得
 function getTodayDate() {
     const now = new Date();
-    return now.toISOString().split('T')[0]; // YYYY-MM-DD形式
+    return now.toISOString().split('T')[0];
 }
 
 // 現在時刻取得
 function getCurrentTime() {
     const now = new Date();
-    return now.toTimeString().split(' ')[0]; // HH:MM:SS形式
+    return now.toTimeString().split(' ')[0];
 }
 
 // 出勤記録
@@ -131,32 +125,29 @@ async function loadTodayStatus() {
     }
 }
 
-
 // URLパラメータでの自動記録処理
 if (action && urlUserId) {
-    // URLパラメータでアクセスした場合、自動ログインして記録
     get(ref(database, `users/${urlUserId}`)).then(snapshot => {
         if (snapshot.exists()) {
             const userData = snapshot.val();
             localStorage.setItem('userId', urlUserId);
             localStorage.setItem('userName', userData.name);
             
-            // ユーザー名を表示
             document.getElementById('user-name').textContent = `${userData.name} さん`;
             
-            // アクションを実行
             const today = getTodayDate();
             const time = getCurrentTime();
             
             if (action === 'checkin') {
                 set(ref(database, `users/${urlUserId}/records/${today}/checkin`), time)
                     .then(() => {
-                        showMessage(`出勤記録: ${time}`, 'success');
-                        loadTodayStatus();
-                        // URLパラメータを削除
+                        document.getElementById('completion-message').textContent = '出勤記録完了';
+                        document.getElementById('completion-time').textContent = time;
+                        document.getElementById('completion-overlay').style.display = 'flex';
+                        
                         setTimeout(() => {
-                            window.history.replaceState({}, '', window.location.pathname);
-                        }, 2000);
+                            window.close();
+                        }, 3000);
                     })
                     .catch(error => {
                         showMessage('エラーが発生しました', 'error');
@@ -165,12 +156,13 @@ if (action && urlUserId) {
             } else if (action === 'checkout') {
                 set(ref(database, `users/${urlUserId}/records/${today}/checkout`), time)
                     .then(() => {
-                        showMessage(`退勤記録: ${time}`, 'success');
-                        loadTodayStatus();
-                        // URLパラメータを削除
+                        document.getElementById('completion-message').textContent = '退勤記録完了';
+                        document.getElementById('completion-time').textContent = time;
+                        document.getElementById('completion-overlay').style.display = 'flex';
+                        
                         setTimeout(() => {
-                            window.history.replaceState({}, '', window.location.pathname);
-                        }, 2000);
+                            window.close();
+                        }, 3000);
                     })
                     .catch(error => {
                         showMessage('エラーが発生しました', 'error');
@@ -185,6 +177,19 @@ if (action && urlUserId) {
         showMessage('エラーが発生しました', 'error');
     });
 } else if (userId && userName) {
-    // 通常ログインの場合、ユーザー名を表示
     document.getElementById('user-name').textContent = `${userName} さん`;
+    loadTodayStatus();
+}
+
+// Service Worker登録（PWA対応）
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/attendance-app/sw.js')
+            .then(registration => {
+                console.log('Service Worker registered:', registration);
+            })
+            .catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+    });
 }
