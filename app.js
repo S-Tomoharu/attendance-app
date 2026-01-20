@@ -148,7 +148,7 @@ if (action && urlUserId) {
             const today = getTodayDate();
             const time = getCurrentTime();
             
-            if (action === 'checkin') {
+if (action === 'checkin') {
                 set(ref(database, `users/${urlUserId}/records/${today}/checkin`), time)
                     .then(() => {
                         // 完了画面を表示
@@ -182,8 +182,7 @@ if (action && urlUserId) {
                         showMessage('エラーが発生しました', 'error');
                         console.error(error);
                     });
-            }
-        } else {
+            } else {
             showMessage('ユーザーが見つかりません', 'error');
         }
     }).catch(error => {
@@ -197,17 +196,3 @@ if (action && urlUserId) {
 }
 
 
-// Service Worker登録（PWA対応）
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/attendance-app/sw.js')
-            .then(registration => {
-                console.log('Service Worker registered:', registration);
-            })
-            .catch(error => {
-                console.log('Service Worker registration failed:', error);
-            });
-    });
-}
-
-    
