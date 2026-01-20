@@ -5,17 +5,26 @@ const urlsToCache = [
   '/attendance-app/login.html',
   '/attendance-app/register.html',
   '/attendance-app/style.css',
-  '/attendance-app/app.js',
-  '/attendance-app/firebase-config.js',
-  '/attendance-app/icon-192.png',
-  '/attendance-app/icon-512.png'
+  '/attendance-app/app.js'
+  // アイコンは後で追加（今は404なのでコメントアウト）
+  // '/attendance-app/icon-192.png',
+  // '/attendance-app/icon-512.png'
 ];
 
-// インストール時：キャッシュにファイルを保存
+// インストール時：存在するファイルのみキャッシュ
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => {
+        // 各ファイルを個別にキャッシュ（エラーを無視）
+        return Promise.all(
+          urlsToCache.map(url => {
+            return cache.add(url).catch(err => {
+              console.log('Failed to cache:', url);
+            });
+          })
+        );
+      })
   );
 });
 
@@ -39,7 +48,6 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // キャッシュにあればそれを返す、なければネットワークから取得
         return response || fetch(event.request);
       })
   );
