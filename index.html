@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>出退勤記録</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- PWA設定 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
 <div style="position: absolute; top: 20px; right: 20px; color: white;">
@@ -37,5 +42,19 @@
     </script>
     
     <script src="app.js" type="module"></script>
+
+<!-- Service Worker登録 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/attendance-app/sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+    
+    <script src="app.js" type="module"></script>
+
 </body>
 </html>
