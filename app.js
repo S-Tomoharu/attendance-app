@@ -17,14 +17,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// ログインチェック
-const userId = localStorage.getItem('userId');
-const userName = localStorage.getItem('userName');
 
-if (!userId || !userName) {
-    // ログインしていない場合はログイン画面へ
+
+// URLパラメータをチェック
+const params = new URLSearchParams(window.location.search);
+const action = params.get('action');
+const urlUserId = params.get('userId');
+
+// ログインチェック（URLパラメータがある場合はスキップ）
+let userId = localStorage.getItem('userId');
+let userName = localStorage.getItem('userName');
+
+if (!action && (!userId || !userName)) {
+    // URLパラメータもなく、ログインもしていない場合はログイン画面へ
     window.location.href = 'login.html';
 }
+
 
 // ユーザー名を表示
 document.getElementById('user-name').textContent = `${userName} さん`;
@@ -121,3 +129,60 @@ async function loadTodayStatus() {
 
 // ページ読み込み時に今日の記録を表示
 loadTodayStatus();
+
+// URLパラメータでの自動記録処理
+if (action && urlUserId) {
+    // URLパラメータでアクセスした場合、自動ログインして記録
+    get(ref(database, `users/${urlUserId}`)).then(snapshot => {
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            localStorage.setItem('userId', urlUserId);
+            localStorage.setItem('userName', userData.name);
+            
+            // ユーザー名を表示
+            document.getElementById('user-name').textContent = `${userData.name} さん`;
+            
+            // アクションを実行
+            const today = getTodayDate();
+            const time = getCurrentTime();
+            
+            if (action === 'checkin') {
+                set(ref(database, `users/${urlUserId}/records/${today}/checkin`), time)
+                    .then(() => {
+                        showMessage(`出勤記録: ${time}`, 'success');
+                        loadTodayStatus();
+                        // URLパラメータを削除
+                        setTimeout(() => {
+                            window.history.replaceState({}, '', window.location.pathname);
+                        }, 2000);
+                    })
+                    .catch(error => {
+                        showMessage('エラーが発生しました', 'error');
+                        console.error(error);
+                    });
+            } else if (action === 'checkout') {
+                set(ref(database, `users/${urlUserId}/records/${today}/checkout`), time)
+                    .then(() => {
+                        showMessage(`退勤記録: ${time}`, 'success');
+                        loadTodayStatus();
+                        // URLパラメータを削除
+                        setTimeout(() => {
+                            window.history.replaceState({}, '', window.location.pathname);
+                        }, 2000);
+                    })
+                    .catch(error => {
+                        showMessage('エラーが発生しました', 'error');
+                        console.error(error);
+                    });
+            }
+        } else {
+            showMessage('ユーザーが見つかりません', 'error');
+        }
+    }).catch(error => {
+        console.error(error);
+        showMessage('エラーが発生しました', 'error');
+    });
+} else if (userId && userName) {
+    // 通常ログインの場合、ユーザー名を表示
+    document.getElementById('user-name').textContent = `${userName} さん`;
+}
