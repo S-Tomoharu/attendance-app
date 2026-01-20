@@ -1,8 +1,7 @@
-// Firebase設定（後で設定します）
+// Firebase設定
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-// Firebase設定情報（次のステップで追加）
 // Firebase設定情報
 const firebaseConfig = {
     apiKey: "AIzaSyDoGXkV8qcg0leHZ3SpKekikJ8JaQW70s4",
@@ -14,10 +13,28 @@ const firebaseConfig = {
     appId: "1:940337246680:web:c075eeca6e436db0e702ad"
 };
 
-
 // Firebase初期化
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+
+// ログインチェック
+const userId = localStorage.getItem('userId');
+const userName = localStorage.getItem('userName');
+
+if (!userId || !userName) {
+    // ログインしていない場合はログイン画面へ
+    window.location.href = 'login.html';
+}
+
+// ユーザー名を表示
+document.getElementById('user-name').textContent = `${userName} さん`;
+
+// ログアウト
+document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    window.location.href = 'login.html';
+});
 
 // 現在時刻を表示
 function updateTime() {
@@ -54,7 +71,6 @@ function getCurrentTime() {
 
 // 出勤記録
 document.getElementById('checkin-btn').addEventListener('click', async () => {
-    const userId = 'user001'; // 仮のユーザーID（Phase 3で認証機能追加）
     const today = getTodayDate();
     const time = getCurrentTime();
     
@@ -70,7 +86,6 @@ document.getElementById('checkin-btn').addEventListener('click', async () => {
 
 // 退勤記録
 document.getElementById('checkout-btn').addEventListener('click', async () => {
-    const userId = 'user001'; // 仮のユーザーID
     const today = getTodayDate();
     const time = getCurrentTime();
     
@@ -86,7 +101,6 @@ document.getElementById('checkout-btn').addEventListener('click', async () => {
 
 // 今日の記録を読み込み
 async function loadTodayStatus() {
-    const userId = 'user001';
     const today = getTodayDate();
     
     try {
