@@ -138,32 +138,30 @@ if (action && urlUserId) {
             const today = getTodayDate();
             const time = getCurrentTime();
             
-            if (action === 'checkin') {
-                set(ref(database, `users/${urlUserId}/records/${today}/checkin`), time)
-                    .then(() => {
-                        document.getElementById('completion-message').textContent = '出勤記録完了';
-                        document.getElementById('completion-time').textContent = time;
-                        document.getElementById('completion-overlay').style.display = 'flex';
-                        
-                        setTimeout(() => {
-                            window.close();
-                        }, 3000);
-                    })
+
+	    if (action === 'checkin') {
+    set(ref(database, `users/${urlUserId}/records/${today}/checkin`), time)
+        .then(() => {
+            showMessage(`出勤記録: ${time}`, 'success');
+            loadTodayStatus();
+            setTimeout(() => {
+                window.history.replaceState({}, '', window.location.pathname);
+            }, 2000);
+        })
                     .catch(error => {
                         showMessage('エラーが発生しました', 'error');
                         console.error(error);
                     });
-            } else if (action === 'checkout') {
-                set(ref(database, `users/${urlUserId}/records/${today}/checkout`), time)
-                    .then(() => {
-                        document.getElementById('completion-message').textContent = '退勤記録完了';
-                        document.getElementById('completion-time').textContent = time;
-                        document.getElementById('completion-overlay').style.display = 'flex';
-                        
-                        setTimeout(() => {
-                            window.close();
-                        }, 3000);
-                    })
+
+} else if (action === 'checkout') {
+    set(ref(database, `users/${urlUserId}/records/${today}/checkout`), time)
+        .then(() => {
+            showMessage(`退勤記録: ${time}`, 'success');
+            loadTodayStatus();
+            setTimeout(() => {
+                window.history.replaceState({}, '', window.location.pathname);
+            }, 2000);
+        })	
                     .catch(error => {
                         showMessage('エラーが発生しました', 'error');
                         console.error(error);
