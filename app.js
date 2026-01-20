@@ -1,7 +1,8 @@
-// Firebase設定
+// Firebase設定（後で設定します）
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
+// Firebase設定情報（次のステップで追加）
 // Firebase設定情報
 const firebaseConfig = {
     apiKey: "AIzaSyDoGXkV8qcg0leHZ3SpKekikJ8JaQW70s4",
@@ -13,34 +14,10 @@ const firebaseConfig = {
     appId: "1:940337246680:web:c075eeca6e436db0e702ad"
 };
 
+
 // Firebase初期化
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-
-// URLパラメータをチェック
-const params = new URLSearchParams(window.location.search);
-const action = params.get('action');
-const urlUserId = params.get('userId');
-
-// ログインチェック（URLパラメータがある場合はスキップ）
-let userId = localStorage.getItem('userId');
-let userName = localStorage.getItem('userName');
-
-if (!action && (!userId || !userName)) {
-    window.location.href = 'login.html';
-}
-
-// ユーザー名を表示
-if (userName) {
-    document.getElementById('user-name').textContent = `${userName} さん`;
-}
-
-// ログアウト
-document.getElementById('logout-btn').addEventListener('click', () => {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    window.location.href = 'login.html';
-});
 
 // 現在時刻を表示
 function updateTime() {
@@ -66,17 +43,18 @@ function showMessage(text, type) {
 // 今日の日付取得
 function getTodayDate() {
     const now = new Date();
-    return now.toISOString().split('T')[0];
+    return now.toISOString().split('T')[0]; // YYYY-MM-DD形式
 }
 
 // 現在時刻取得
 function getCurrentTime() {
     const now = new Date();
-    return now.toTimeString().split(' ')[0];
+    return now.toTimeString().split(' ')[0]; // HH:MM:SS形式
 }
 
 // 出勤記録
 document.getElementById('checkin-btn').addEventListener('click', async () => {
+    const userId = 'user001'; // 仮のユーザーID（Phase 3で認証機能追加）
     const today = getTodayDate();
     const time = getCurrentTime();
     
@@ -92,6 +70,7 @@ document.getElementById('checkin-btn').addEventListener('click', async () => {
 
 // 退勤記録
 document.getElementById('checkout-btn').addEventListener('click', async () => {
+    const userId = 'user001'; // 仮のユーザーID
     const today = getTodayDate();
     const time = getCurrentTime();
     
@@ -107,6 +86,7 @@ document.getElementById('checkout-btn').addEventListener('click', async () => {
 
 // 今日の記録を読み込み
 async function loadTodayStatus() {
+    const userId = 'user001';
     const today = getTodayDate();
     
     try {
@@ -125,69 +105,5 @@ async function loadTodayStatus() {
     }
 }
 
-// URLパラメータでの自動記録処理
-if (action && urlUserId) {
-    get(ref(database, `users/${urlUserId}`)).then(snapshot => {
-        if (snapshot.exists()) {
-            const userData = snapshot.val();
-            localStorage.setItem('userId', urlUserId);
-            localStorage.setItem('userName', userData.name);
-            
-            document.getElementById('user-name').textContent = `${userData.name} さん`;
-            
-            const today = getTodayDate();
-            const time = getCurrentTime();
-            
-
-	    if (action === 'checkin') {
-    set(ref(database, `users/${urlUserId}/records/${today}/checkin`), time)
-        .then(() => {
-            showMessage(`出勤記録: ${time}`, 'success');
-            loadTodayStatus();
-            setTimeout(() => {
-                window.history.replaceState({}, '', window.location.pathname);
-            }, 2000);
-        })
-                    .catch(error => {
-                        showMessage('エラーが発生しました', 'error');
-                        console.error(error);
-                    });
-
-} else if (action === 'checkout') {
-    set(ref(database, `users/${urlUserId}/records/${today}/checkout`), time)
-        .then(() => {
-            showMessage(`退勤記録: ${time}`, 'success');
-            loadTodayStatus();
-            setTimeout(() => {
-                window.history.replaceState({}, '', window.location.pathname);
-            }, 2000);
-        })	
-                    .catch(error => {
-                        showMessage('エラーが発生しました', 'error');
-                        console.error(error);
-                    });
-            }
-        } else {
-            showMessage('ユーザーが見つかりません', 'error');
-        }
-    }).catch(error => {
-        console.error(error);
-        showMessage('エラーが発生しました', 'error');
-    });
-} else if (userId && userName) {
-    document.getElementById('user-name').textContent = `${userName} さん`;
-    loadTodayStatus();
-}
-
-// Service Worker登録（PWA対応）
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/attendance-app/sw.js')
-            .then(registration => {
-                console.log('Service Worker registered:', registration);
-            })
-            .catch(error => {
-                console.log('Service Worker registration failed:', error);
-            });
-    });
-}
+// ページ読み込み時に今日の記録を表示
+loadTodayStatus();
