@@ -18,21 +18,34 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 
-
 // URLパラメータをチェック
 const params = new URLSearchParams(window.location.search);
 const action = params.get('action');
 const urlUserId = params.get('userId');
 
-// ログインチェック（URLパラメータがある場合はスキップ）
+// ログインチェック
 let userId = localStorage.getItem('userId');
 let userName = localStorage.getItem('userName');
 
-if (!action && (!userId || !userName)) {
+// URLパラメータでuserIdが指定されている場合は自動ログイン
+if (urlUserId) {
+    userId = urlUserId;
+    localStorage.setItem('userId', urlUserId);
+    if (!userName) {
+        userName = 'ユーザー';
+        localStorage.setItem('userName', userName);
+    }
+    
+    // actionが指定されている場合は即座に実行
+    if (action === 'checkin') {
+        recordCheckin(); // 出勤記録関数を呼び出し
+    } else if (action === 'checkout') {
+        recordCheckout(); // 退勤記録関数を呼び出し
+    }
+} else if (!userId || !userName) {
     // URLパラメータもなく、ログインもしていない場合はログイン画面へ
     window.location.href = 'login.html';
 }
-
 
 // ユーザー名を表示
 document.getElementById('user-name').textContent = `${userName} さん`;
