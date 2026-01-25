@@ -21,31 +21,23 @@ const database = getDatabase(app);
 // URLパラメータをチェック
 const params = new URLSearchParams(window.location.search);
 const action = params.get('action');
-const urlUserId = params.get('userId');
 
-// ログインチェック
+// ログインチェック：LocalStorage優先
 let userId = localStorage.getItem('userId');
 let userName = localStorage.getItem('userName');
 
-// URLパラメータでuserIdが指定されている場合は自動ログイン
-if (urlUserId) {
-    userId = urlUserId;
-    localStorage.setItem('userId', urlUserId);
-    if (!userName) {
-        userName = 'ユーザー';
-        localStorage.setItem('userName', userName);
-    }
-    
-    // actionが指定されている場合は即座に実行
+if (userId && userName) {
+    // ログイン済み：actionがあれば即座に実行
     if (action === 'checkin') {
-        recordCheckin(); // 出勤記録関数を呼び出し
+        recordCheckin();
     } else if (action === 'checkout') {
-        recordCheckout(); // 退勤記録関数を呼び出し
+        recordCheckout();
     }
-} else if (!userId || !userName) {
-    // URLパラメータもなく、ログインもしていない場合はログイン画面へ
+} else {
+    // ログインしていない場合はログイン画面へ
     window.location.href = 'login.html';
 }
+
 
 // ユーザー名を表示
 document.getElementById('user-name').textContent = `${userName} さん`;
