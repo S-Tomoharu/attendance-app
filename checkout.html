@@ -4,14 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>退勤記録</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest-checkout.json">
     <meta name="theme-color" content="#ef4444">
     <link rel="apple-touch-icon" href="icon-checkout-512.png">
 </head>
 <body>
-    <script>
-        // index.htmlにリダイレクト（action付き）
-        window.location.href = 'index.html?action=checkout';
+    <div class="container">
+        <h1>退勤記録中...</h1>
+        <div id="message" class="message"></div>
+        <p><a href="index.html">ホームに戻る</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDoGXkV8qcg0leHZ3SpKekikJ8JaQW70s4",
+            authDomain: "attendance-app-f9a60.firebaseapp.com",
+            databaseURL: "https://attendance-app-f9a60-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "attendance-app-f9a60",
+            storageBucket: "attendance-app-f9a60.firebasestorage.app",
+            messagingSenderId: "940337246680",
+            appId: "1:940337246680:web:c075eeca6e436db0e702ad"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
+
+        if (!userId || !userName) {
+            window.location.href = 'login.html';
+        } else {
+            const today = new Date().toISOString().split('T')[0];
+            const time = new Date().toTimeString().split(' ')[0];
+            
+            set(ref(database, `users/${userId}/records/${today}/checkout`), time)
+                .then(() => {
+                    document.getElementById('message').textContent = `退勤記録完了: ${time}`;
+                    document.getElementById('message').className = 'message success';
+                })
+                .catch(error => {
+                    document.getElementById('message').textContent = 'エラーが発生しました';
+                    document.getElementById('message').className = 'message error';
+                    console.error(error);
+                });
+        }
     </script>
 </body>
 </html>
