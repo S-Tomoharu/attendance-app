@@ -82,7 +82,7 @@ async function loadTodayStatus() {
             const checkin = data.checkin || '未記録';
             const checkout = data.checkout || '未記録';
             document.getElementById('today-status').textContent = 
-                `<strong>今日の記録: <Br>出勤 ${checkin} <Br> 退勤 ${checkout}`;
+                `<strong>今日の記録:</strong> <Br>出勤 ${checkin} <Br> 退勤 ${checkout}`;
         } else {
             document.getElementById('today-status').textContent = '今日の記録: 未記録';
         }
