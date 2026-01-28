@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; padding: 20px; }
+        .icon { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 20%;
+        }
+        #icon-192 { 
+            width: 192px; 
+            height: 192px; 
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        #icon-512 { 
+            width: 512px; 
+            height: 512px; 
+            font-size: 128px;
+        }
+    </style>
+</head>
+<body>
+    <div id="icon-192" class="icon">出退勤</div>
+    <div id="icon-512" class="icon">出退勤</div>
+    
+    <script>
+        // 各アイコンをPNG画像として保存
+        function downloadIcon(elementId, filename) {
+            const element = document.getElementById(elementId);
+            const canvas = document.createElement('canvas');
+            const size = elementId === 'icon-192' ? 192 : 512;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // グラデーション背景
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // 角丸
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            const radius = size * 0.2;
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.fill();
+            
+            // テキスト
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${elementId === 'icon-192' ? '48' : '128'}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('出退勤', size / 2, size / 2);
+            
+            // ダウンロード
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+            });
+        }
+        
+        // ページ読み込み後に自動ダウンロード
+        window.onload = () => {
+            setTimeout(() => downloadIcon('icon-192', 'icon-192.png'), 500);
+            setTimeout(() => downloadIcon('icon-512', 'icon-512.png'), 1500);
+        };
+    </script>
+</body>
+</html>

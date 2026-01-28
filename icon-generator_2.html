@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>出退勤アイコン生成</title>
+</head>
+<body>
+    <h2>アイコンが自動ダウンロードされます</h2>
+    <canvas id="canvas" style="display:none;"></canvas>
+    
+    <script>
+        function createIcon(text, filename, color1, color2) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 512;
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // グラデーション背景
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(1, color2);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // 角丸マスク
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            const radius = size * 0.2;
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.fill();
+            
+            // テキスト
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.4}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, size / 2, size / 2);
+            
+            // ダウンロード
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        // ページ読み込み後に自動生成
+        window.onload = () => {
+            // 「出」アイコン（緑系グラデーション）
+            setTimeout(() => createIcon('出', 'icon-checkin-512.png', '#4ade80', '#22c55e'), 500);
+            
+            // 「退」アイコン（赤系グラデーション）
+            setTimeout(() => createIcon('退', 'icon-checkout-512.png', '#f87171', '#ef4444'), 1500);
+        };
+    </script>
+</body>
+</html>

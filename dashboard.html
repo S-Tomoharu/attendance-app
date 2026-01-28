@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 - 出退勤記録</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .tab.active {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .tab-content {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+        }
+        
+        .month-selector {
+            margin-bottom: 20px;
+        }
+        
+        .month-selector select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: none;
+        }
+        
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .calendar-day {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            color: white;
+            min-height: 60px;
+            font-size: 14px;
+        }
+        
+        .calendar-day.header {
+            font-weight: bold;
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .calendar-day.has-record {
+            background: rgba(34, 197, 94, 0.3);
+            cursor: pointer;
+        }
+        
+        .calendar-day.has-record:hover {
+            background: rgba(34, 197, 94, 0.4);
+        }
+        
+        .record-list {
+            color: white;
+        }
+        
+        .record-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: 100px 1fr 1fr 2fr;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: white;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .btn-primary:hover {
+            background: #16a34a;
+        }
+        
+        .btn-secondary {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div style="position: absolute; top: 20px; right: 20px; color: white;">
+        <span id="user-name"></span>
+        <button id="logout-btn" style="margin-left: 10px; padding: 8px 16px; background: rgba(255,255,255,0.2); border: 1px solid white; border-radius: 6px; color: white; cursor: pointer;">ログアウト</button>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← ホームに戻る</a>
+        
+        <h1>📊 管理画面</h1>
+        
+        <!-- タブ -->
+        <div class="tabs">
+            <button class="tab active" data-tab="calendar">カレンダー</button>
+            <button class="tab" data-tab="list">月次一覧</button>
+            <button class="tab" data-tab="edit">手動修正</button>
+        </div>
+        
+        <!-- タブ1: カレンダー表示 -->
+        <div id="calendar-tab" class="tab-content active">
+            <div class="month-selector">
+                <select id="calendar-month">
+                    <option value="">月を選択</option>
+                </select>
+            </div>
+            <div id="calendar-view" class="calendar"></div>
+        </div>
+        
+        <!-- タブ2: 月次一覧 -->
+        <div id="list-tab" class="tab-content">
+            <div class="month-selector">
+                <select id="list-month">
+                    <option value="">月を選択</option>
+                </select>
+                <button class="btn-primary" id="export-csv-btn" style="margin-left: 10px;">CSV出力</button>
+                <button class="btn-primary" id="export-pdf-btn">PDF出力</button>
+            </div>
+            <div id="record-list" class="record-list"></div>
+        </div>
+        
+        <!-- タブ3: 手動修正 -->
+        <div id="edit-tab" class="tab-content">
+            <div class="form-group">
+                <label for="edit-date">日付</label>
+                <input type="date" id="edit-date">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-checkin">出勤時刻</label>
+                <input type="time" id="edit-checkin" step="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-checkout">退勤時刻</label>
+                <input type="time" id="edit-checkout" step="1">
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="edit-absent"> 欠勤
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-note">備考</label>
+                <textarea id="edit-note" placeholder="出張、外出など"></textarea>
+            </div>
+            
+            <button class="btn-primary" id="save-edit-btn">保存</button>
+            <button class="btn-secondary" id="delete-record-btn">削除</button>
+            
+            <div id="edit-message" style="margin-top: 20px; color: white;"></div>
+        </div>
+    </div>
+
+    <script src="dashboard.js" type="module"></script>
+</body>
+</html>

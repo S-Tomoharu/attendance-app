@@ -1,0 +1,17 @@
+{
+  "name": "退勤記録",
+  "short_name": "退",
+  "description": "ワンタップで退勤を記録",
+  "start_url": "/attendance-app/?action=checkout",
+  "display": "standalone",
+  "background_color": "#ef4444",
+  "theme_color": "#ef4444",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-checkout-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
