@@ -81,10 +81,10 @@ async function loadTodayStatus() {
             const data = snapshot.val();
             const checkin = data.checkin || '未記録';
             const checkout = data.checkout || '未記録';
-            document.getElementById('today-status').textContent = 
-                `<strong>今日の記録:</strong> <Br>出勤 ${checkin} <Br> 退勤 ${checkout}`;
+            document.getElementById('today-status').innerHTML = 
+                `<strong>今日の記録:</strong> <br>出勤 ${checkin} <br> 退勤 ${checkout}`;
         } else {
-            document.getElementById('today-status').textContent = '今日の記録: 未記録';
+            document.getElementById('today-status').innerHTML = '<strong>今日の記録: </strong><br>未記録';
         }
     } catch (error) {
         console.error(error);
