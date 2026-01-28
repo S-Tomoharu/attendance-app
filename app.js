@@ -17,6 +17,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
+// カスタム確認ダイアログ
+function customConfirm(message) {
+    return new Promise((resolve) => {
+        const dialog = document.getElementById('confirm-dialog');
+        const messageEl = document.getElementById('confirm-message');
+        const okBtn = document.getElementById('confirm-ok');
+        const cancelBtn = document.getElementById('confirm-cancel');
+        
+        messageEl.textContent = message;
+        dialog.style.display = 'flex';
+        
+        const handleOk = () => {
+            dialog.style.display = 'none';
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            resolve(true);
+        };
+        
+        const handleCancel = () => {
+            dialog.style.display = 'none';
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            resolve(false);
+        };
+        
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+    });
+}
+
 // 今日の日付取得
 function getTodayDate() {
     const now = new Date();
@@ -69,13 +99,11 @@ async function recordCheckin() {
     const time = getCurrentTime();
     
     try {
-        // 既存の記録をチェック
         const snapshot = await get(ref(database, `users/${userId}/records/${today}/checkin`));
         
         if (snapshot.exists()) {
-            // 既に記録がある場合は確認
             const existingTime = snapshot.val();
-            const confirmOverwrite = confirm(`既に出勤記録があります（${existingTime}）\n上書きしますか？`);
+            const confirmOverwrite = await customConfirm(`既に出勤記録があります（${existingTime}）\n上書きしますか？`);
             
             if (!confirmOverwrite) {
                 showMessage('出勤記録をキャンセルしました', 'info');
@@ -83,7 +111,6 @@ async function recordCheckin() {
             }
         }
         
-        // 記録を保存
         await set(ref(database, `users/${userId}/records/${today}/checkin`), time);
         showMessage(`出勤記録: ${time}`, 'success');
         loadTodayStatus();
@@ -100,13 +127,11 @@ async function recordCheckout() {
     const time = getCurrentTime();
     
     try {
-        // 既存の記録をチェック
         const snapshot = await get(ref(database, `users/${userId}/records/${today}/checkout`));
         
         if (snapshot.exists()) {
-            // 既に記録がある場合は確認
             const existingTime = snapshot.val();
-            const confirmOverwrite = confirm(`既に退勤記録があります（${existingTime}）\n上書きしますか？`);
+            const confirmOverwrite = await customConfirm(`既に退勤記録があります（${existingTime}）\n上書きしますか？`);
             
             if (!confirmOverwrite) {
                 showMessage('退勤記録をキャンセルしました', 'info');
@@ -114,7 +139,6 @@ async function recordCheckout() {
             }
         }
         
-        // 記録を保存
         await set(ref(database, `users/${userId}/records/${today}/checkout`), time);
         showMessage(`退勤記録: ${time}`, 'success');
         loadTodayStatus();
@@ -123,7 +147,6 @@ async function recordCheckout() {
         console.error(error);
     }
 }
-
 
 // URLパラメータをチェック
 const params = new URLSearchParams(window.location.search);
