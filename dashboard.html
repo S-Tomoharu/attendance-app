@@ -34,9 +34,10 @@
         
         .tab-content {
             display: none;
-            background: rgba(255,255,255,0.1);
+            background: white;
             padding: 20px;
             border-radius: 12px;
+            color: #333;
         }
         
         .tab-content.active {
@@ -61,7 +62,8 @@
             padding: 10px;
             font-size: 16px;
             border-radius: 6px;
-            border: none;
+            border: 1px solid #ddd;
+            color: #333;
         }
         
         .calendar {
@@ -72,35 +74,37 @@
         }
         
         .calendar-day {
-            background: rgba(255,255,255,0.2);
+            background: #f0f0f0;
             padding: 10px;
             border-radius: 6px;
             text-align: center;
-            color: white;
+            color: #333;
             min-height: 60px;
             font-size: 14px;
         }
         
         .calendar-day.header {
             font-weight: bold;
-            background: rgba(255,255,255,0.3);
+            background: #e0e0e0;
+            color: #333;
         }
         
         .calendar-day.has-record {
-            background: rgba(34, 197, 94, 0.3);
+            background: #dcfce7;
             cursor: pointer;
+            color: #166534;
         }
         
         .calendar-day.has-record:hover {
-            background: rgba(34, 197, 94, 0.4);
+            background: #bbf7d0;
         }
         
         .record-list {
-            color: white;
+            color: #333;
         }
         
         .record-item {
-            background: rgba(255,255,255,0.1);
+            background: #f9fafb;
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 8px;
@@ -108,6 +112,8 @@
             grid-template-columns: 100px 1fr 1fr 2fr;
             gap: 15px;
             align-items: center;
+            color: #333;
+            border: 1px solid #e5e7eb;
         }
         
         .form-group {
@@ -116,7 +122,7 @@
         
         .form-group label {
             display: block;
-            color: white;
+            color: #333;
             margin-bottom: 8px;
             font-weight: bold;
         }
@@ -126,8 +132,9 @@
             width: 100%;
             padding: 10px;
             border-radius: 6px;
-            border: none;
+            border: 1px solid #ddd;
             font-size: 16px;
+            color: #333;
         }
         
         .form-group textarea {
@@ -174,7 +181,7 @@
     <div class="container">
         <a href="index.html" class="back-link">← ホームに戻る</a>
         
-        <h1>📊 管理画面</h1>
+        <h1 style="color: white;">📊 管理画面</h1>
         
         <!-- タブ -->
         <div class="tabs">
@@ -236,7 +243,7 @@
             <button class="btn-primary" id="save-edit-btn">保存</button>
             <button class="btn-secondary" id="delete-record-btn">削除</button>
             
-            <div id="edit-message" style="margin-top: 20px; color: white;"></div>
+            <div id="edit-message" style="margin-top: 20px; color: #333;"></div>
         </div>
     </div>
 
