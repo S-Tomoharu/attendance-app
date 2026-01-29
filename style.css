@@ -23,7 +23,7 @@ body {
     width: 100%;
     text-align: center;
     height:80vh;
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
 }
 
