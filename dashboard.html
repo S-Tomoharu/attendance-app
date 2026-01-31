@@ -187,9 +187,9 @@ s	    margin-top:tpx
         
         <!-- タブ -->
         <div class="tabs">
-            <button class="tab active" data-tab="calendar">カレンダー</button>
-            <button class="tab" data-tab="list">月次一覧</button>
-            <button class="tab" data-tab="edit">手動修正</button>
+            <button class="tab active" data-tab="calendar">一覧</button>
+            <button class="tab" data-tab="list">出力</button>
+            <button class="tab" data-tab="edit">修正</button>
         </div>
         
         <!-- タブ1: カレンダー表示 -->
@@ -201,18 +201,21 @@ s	    margin-top:tpx
             </div>
             <div id="calendar-view" class="calendar"></div>
         </div>
-        
-        <!-- タブ2: 月次一覧 -->
-        <div id="list-tab" class="tab-content">
-            <div class="month-selector">
-                <select id="list-month">
-                    <option value="">月を選択</option>
-                </select>
-                <button class="btn-primary" id="export-csv-btn" style="margin-left: 10px;">CSV出力</button>
-                <button class="btn-primary" id="export-pdf-btn">PDF出力</button>
-            </div>
-            <div id="record-list" class="record-list"></div>
-        </div>
+
+
+<!-- タブ2: 月次一覧 -->
+<div id="list-tab" class="tab-content">
+    <div class="month-selector">
+        <select id="list-month">
+            <option value="">月を選択</option>
+        </select>
+    </div>
+    <div style="margin-bottom: 15px;">
+        <button class="btn-primary" id="export-csv-btn">CSV出力</button>
+        <button class="btn-primary" id="export-pdf-btn">PDF出力</button>
+    </div>
+    <div id="record-list" class="record-list"></div>
+</div>	
         
         <!-- タブ3: 手動修正 -->
         <div id="edit-tab" class="tab-content">
