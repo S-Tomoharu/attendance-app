@@ -12,6 +12,7 @@
             margin-bottom: 10px;
             border-bottom: 2px solid rgba(255,255,255,0.2);
 	    justify-content:center
+	    flex-shrink: 0;  /* ← 追加（タブを固定）*/			    
         }
         
         .tab {
@@ -41,6 +42,10 @@
             border-radius: 12px;
             color: #333;
 	    max-width: 100%;  /* ← この行を追加（幅いっぱいに広げる）*/
+	    overflow-y: auto;              /* ← 追加 */
+	    overflow-x: hidden;            /* ← 追加 */
+	    -webkit-overflow-scrolling: touch;  /* ← 追加（iOS用）*/
+	    flex: 1;                       /* ← 追加（残りのスペースを使う）*/
         }
         
         .tab-content.active {
