@@ -25,7 +25,7 @@ body {
     height:80vh;
     overflow:hidden;
     display:flex;
-    flex-direction:column;
+
 }
 
 h1 {
