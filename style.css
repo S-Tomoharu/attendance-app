@@ -23,8 +23,9 @@ body {
     width: 100%;
     text-align: center;
     height:80vh;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
 }
 
 h1 {
