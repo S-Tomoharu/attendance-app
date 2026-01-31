@@ -74,17 +74,18 @@ function showMessage(text, type) {
 async function loadTodayStatus() {
     const userId = localStorage.getItem('userId');
     const today = getTodayDate();
+    const yearMonth = today.substring(0, 7); // "2026-01"
     
     try {
-        const snapshot = await get(ref(database, `users/${userId}/records/${today}`));
+        const snapshot = await get(ref(database, `users/${userId}/records/${yearMonth}/${today}`));
         if (snapshot.exists()) {
             const data = snapshot.val();
             const checkin = data.checkin || '未記録';
             const checkout = data.checkout || '未記録';
             document.getElementById('today-status').innerHTML = 
-                `<strong>今日の記録</strong> <br>出勤 ${checkin} <br> 退勤 ${checkout}`;
+                `<strong>今日の記録</strong><br>出勤　${checkin}<br>退勤　${checkout}`;
         } else {
-            document.getElementById('today-status').innerHTML = '<strong>今日の記録 </strong><br>未記録';
+            document.getElementById('today-status').innerHTML = '<strong>今日の記録</strong><br>未記録';
         }
     } catch (error) {
         console.error(error);
@@ -92,14 +93,18 @@ async function loadTodayStatus() {
 }
 
 
+
 // 出勤記録関数
+
+
 async function recordCheckin() {
     const userId = localStorage.getItem('userId');
     const today = getTodayDate();
+    const yearMonth = today.substring(0, 7); // "2026-01"
     const time = getCurrentTime();
     
     try {
-        const snapshot = await get(ref(database, `users/${userId}/records/${today}/checkin`));
+        const snapshot = await get(ref(database, `users/${userId}/records/${yearMonth}/${today}/checkin`));
         
         if (snapshot.exists()) {
             const existingTime = snapshot.val();
@@ -111,7 +116,7 @@ async function recordCheckin() {
             }
         }
         
-        await set(ref(database, `users/${userId}/records/${today}/checkin`), time);
+        await set(ref(database, `users/${userId}/records/${yearMonth}/${today}/checkin`), time);
         showMessage(`出勤記録: ${time}`, 'success');
         loadTodayStatus();
     } catch (error) {
@@ -120,14 +125,18 @@ async function recordCheckin() {
     }
 }
 
+
+
+
 // 退勤記録関数
 async function recordCheckout() {
     const userId = localStorage.getItem('userId');
     const today = getTodayDate();
+    const yearMonth = today.substring(0, 7); // "2026-01"
     const time = getCurrentTime();
     
     try {
-        const snapshot = await get(ref(database, `users/${userId}/records/${today}/checkout`));
+        const snapshot = await get(ref(database, `users/${userId}/records/${yearMonth}/${today}/checkout`));
         
         if (snapshot.exists()) {
             const existingTime = snapshot.val();
@@ -139,7 +148,7 @@ async function recordCheckout() {
             }
         }
         
-        await set(ref(database, `users/${userId}/records/${today}/checkout`), time);
+        await set(ref(database, `users/${userId}/records/${yearMonth}/${today}/checkout`), time);
         showMessage(`退勤記録: ${time}`, 'success');
         loadTodayStatus();
     } catch (error) {
@@ -147,6 +156,8 @@ async function recordCheckout() {
         console.error(error);
     }
 }
+
+
 
 // URLパラメータをチェック
 const params = new URLSearchParams(window.location.search);
