@@ -295,3 +295,114 @@ const now = new Date();
 const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 displayCalendar(currentMonth);
 displayList(currentMonth);
+
+// CSV出力機能
+document.getElementById('export-csv-btn').addEventListener('click', async () => {
+    const selectedMonth = document.getElementById('list-month').value;
+    
+    if (!selectedMonth) {
+        alert('月を選択してください');
+        return;
+    }
+    
+    const snapshot = await get(ref(database, `users/${userId}/records/${selectedMonth}`));
+    const records = snapshot.exists() ? snapshot.val() : {};
+    
+    if (Object.keys(records).length === 0) {
+        alert('記録がありません');
+        return;
+    }
+    
+    // CSVヘッダー
+    let csv = '\uFEFF'; // UTF-8 BOM
+    csv += '日付,出勤,退勤,備考\n';
+    
+    // データ行
+    const sortedDates = Object.keys(records).sort();
+    sortedDates.forEach(date => {
+        const record = records[date];
+        const checkin = record.checkin || '';
+        const checkout = record.checkout || '';
+        const note = record.note || '';
+        csv += `${date},${checkin},${checkout},${note}\n`;
+    });
+    
+    // ダウンロード
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `出退勤記録_${selectedMonth}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
+
+// PDF出力機能
+document.getElementById('export-pdf-btn').addEventListener('click', async () => {
+    const selectedMonth = document.getElementById('list-month').value;
+    
+    if (!selectedMonth) {
+        alert('月を選択してください');
+        return;
+    }
+    
+    const snapshot = await get(ref(database, `users/${userId}/records/${selectedMonth}`));
+    const records = snapshot.exists() ? snapshot.val() : {};
+    
+    if (Object.keys(records).length === 0) {
+        alert('記録がありません');
+        return;
+    }
+    
+    // jsPDF インスタンス作成
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // タイトル
+    doc.setFontSize(18);
+    doc.text('出退勤記録表', 105, 20, { align: 'center' });
+    
+    // ユーザー名と対象月
+    doc.setFontSize(12);
+    doc.text(`氏名: ${userName}`, 20, 35);
+    doc.text(`対象月: ${selectedMonth}`, 20, 45);
+    
+    // テーブルヘッダー
+    doc.setFontSize(10);
+    let y = 60;
+    doc.text('日付', 20, y);
+    doc.text('出勤', 60, y);
+    doc.text('退勤', 100, y);
+    doc.text('備考', 140, y);
+    
+    // 区切り線
+    doc.line(20, y + 2, 190, y + 2);
+    
+    // データ行
+    y += 10;
+    const sortedDates = Object.keys(records).sort();
+    
+    sortedDates.forEach(date => {
+        const record = records[date];
+        const checkin = record.checkin || '-';
+        const checkout = record.checkout || '-';
+        const note = record.note || '-';
+        
+        doc.text(date, 20, y);
+        doc.text(checkin, 60, y);
+        doc.text(checkout, 100, y);
+        doc.text(note.substring(0, 20), 140, y); // 備考は20文字まで
+        
+        y += 8;
+        
+        // ページが足りなくなったら新しいページを追加
+        if (y > 280) {
+            doc.addPage();
+            y = 20;
+        }
+    });
+    
+    // PDFダウンロード
+    doc.save(`出退勤記録_${selectedMonth}.pdf`);
+});
