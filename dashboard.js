@@ -308,24 +308,33 @@ document.getElementById('export-csv-btn').addEventListener('click', async () => 
     const snapshot = await get(ref(database, `users/${userId}/records/${selectedMonth}`));
     const records = snapshot.exists() ? snapshot.val() : {};
     
-    if (Object.keys(records).length === 0) {
-        alert('記録がありません');
-        return;
-    }
-    
     // CSVヘッダー
     let csv = '\uFEFF'; // UTF-8 BOM
-    csv += '日付,出勤,退勤,備考\n';
+    csv += '日,曜日,出勤,退勤,備考\n';
     
-    // データ行
-    const sortedDates = Object.keys(records).sort();
-    sortedDates.forEach(date => {
-        const record = records[date];
-        const checkin = record.checkin || '';
-        const checkout = record.checkout || '';
-        const note = record.note || '';
-        csv += `${date},${checkin},${checkout},${note}\n`;
-    });
+    // 選択した月の最終日を取得
+    const [year, month] = selectedMonth.split('-');
+    const lastDay = new Date(year, month, 0).getDate(); // 月の最終日
+    
+    // 曜日の配列
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    
+    // 1日から最終日までループ
+    for (let day = 1; day <= lastDay; day++) {
+        const dateStr = `${selectedMonth}-${String(day).padStart(2, '0')}`;
+        const record = records[dateStr];
+        
+        // 曜日を取得
+        const date = new Date(year, month - 1, day);
+        const weekday = weekdays[date.getDay()];
+        
+        // データ行
+        const checkin = record ? (record.checkin || '') : '';
+        const checkout = record ? (record.checkout || '') : '';
+        const note = record ? (record.note || '') : '';
+        
+        csv += `${day},${weekday},${checkin},${checkout},${note}\n`;
+    }
     
     // ダウンロード
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -336,6 +345,10 @@ document.getElementById('export-csv-btn').addEventListener('click', async () => 
     a.click();
     URL.revokeObjectURL(url);
 });
+
+
+
+
 
 
 // PDF出力機能
