@@ -204,6 +204,7 @@ s	    margin-top:tpx
             <button class="tab active" data-tab="calendar">一覧</button>
             <button class="tab" data-tab="list">出力</button>
             <button class="tab" data-tab="edit">修正</button>
+	    <button class="tab" data-tab="settings">設定</button>
         </div>
         </div>
         
@@ -265,6 +266,37 @@ s	    margin-top:tpx
             
             <div id="edit-message" style="margin-top: 20px; color: #333;"></div>
         </div>
+<!-- タブ4: 設定 -->
+<div id="settings-tab" class="tab-content">
+    <h2 style="color: #333; margin-bottom: 20px;">リマインダー設定</h2>
+    
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="reminder-enabled"> リマインダー機能を使用する
+        </label>
+    </div>
+    
+    <div class="form-group">
+        <label for="reminder-email">メールアドレス</label>
+        <input type="email" id="reminder-email" placeholder="example@gmail.com">
+    </div>
+    
+    <div class="form-group">
+        <label for="reminder-checkin-time">出勤予定時刻</label>
+        <input type="time" id="reminder-checkin-time" value="09:00">
+    </div>
+    
+    <div class="form-group">
+        <label for="reminder-checkout-time">退勤予定時刻</label>
+        <input type="time" id="reminder-checkout-time" value="18:00">
+    </div>
+    
+    <button class="btn-primary" id="save-reminder-btn">保存</button>
+    
+    <div id="reminder-message" style="margin-top: 20px; color: #333;"></div>
+</div>
+
+	
     </div>
 
     <script src="dashboard.js" type="module"></script>

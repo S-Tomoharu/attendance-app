@@ -419,3 +419,67 @@ document.getElementById('export-pdf-btn').addEventListener('click', async () => 
     // PDFダウンロード
     doc.save(`出退勤記録_${selectedMonth}.pdf`);
 });
+
+
+// ========================================
+// 設定タブの機能
+// ========================================
+
+// 設定タブが開かれた時に既存設定を読み込む
+document.querySelector('[data-tab="settings"]').addEventListener('click', loadReminderSettings);
+
+async function loadReminderSettings() {
+    try {
+        const snapshot = await get(ref(database, `users/${userId}`));
+        const user = snapshot.val();
+        
+        if (user) {
+            document.getElementById('reminder-enabled').checked = user.reminderEnabled || false;
+            document.getElementById('reminder-email').value = user.email || '';
+            document.getElementById('reminder-checkin-time').value = user.remindCheckinTime || '09:00';
+            document.getElementById('reminder-checkout-time').value = user.remindCheckoutTime || '18:00';
+        }
+    } catch (error) {
+        console.error('Error loading reminder settings:', error);
+    }
+}
+
+// 設定保存
+document.getElementById('save-reminder-btn').addEventListener('click', async () => {
+    const reminderEnabled = document.getElementById('reminder-enabled').checked;
+    const email = document.getElementById('reminder-email').value.trim();
+    const checkinTime = document.getElementById('reminder-checkin-time').value;
+    const checkoutTime = document.getElementById('reminder-checkout-time').value;
+    
+    // バリデーション
+    if (reminderEnabled && !email) {
+        document.getElementById('reminder-message').innerHTML = '<span style="color: #ef4444;">メールアドレスを入力してください</span>';
+        return;
+    }
+    
+    if (reminderEnabled && !email.includes('@')) {
+        document.getElementById('reminder-message').innerHTML = '<span style="color: #ef4444;">正しいメールアドレスを入力してください</span>';
+        return;
+    }
+    
+    try {
+        // Firebase に保存
+        await update(ref(database, `users/${userId}`), {
+            reminderEnabled: reminderEnabled,
+            email: email,
+            remindCheckinTime: checkinTime,
+            remindCheckoutTime: checkoutTime
+        });
+        
+        document.getElementById('reminder-message').innerHTML = '<span style="color: #22c55e;">設定を保存しました</span>';
+        
+        // 3秒後にメッセージを消す
+        setTimeout(() => {
+            document.getElementById('reminder-message').innerHTML = '';
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Error saving reminder settings:', error);
+        document.getElementById('reminder-message').innerHTML = '<span style="color: #ef4444;">保存に失敗しました</span>';
+    }
+});
