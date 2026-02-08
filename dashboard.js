@@ -1,6 +1,6 @@
 // Firebase設定
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getDatabase, ref, get, set, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+import { getDatabase, ref, get, set, remove, update} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
 // Firebase設定情報
 const firebaseConfig = {
