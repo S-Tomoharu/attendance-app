@@ -472,7 +472,6 @@ document.getElementById('save-reminder-btn').addEventListener('click', async () 
         
         // リマインダーが有効な場合、翌日のタスクを作成
 	if (reminderEnabled) {
-	    console.log('userId:', userId);  // ← 追加1
 
 	    const response = await fetch('https://us-central1-attendance-app-f9a60.cloudfunctions.net/createDailyTasks', {
                 method: 'POST',
@@ -481,10 +480,6 @@ document.getElementById('save-reminder-btn').addEventListener('click', async () 
                 },
                 body: JSON.stringify({ userId: userId })
             });
-
-	    console.log('Response status:', response.status);  // ← 追加2
-	    console.log('Request body:', JSON.stringify({ userId: userId }));  // ← 追加3
-
 	    
             if (response.ok) {
                 document.getElementById('reminder-message').innerHTML = '<span style="color: #22c55e;">設定を保存し、明日のリマインダーを設定しました</span>';

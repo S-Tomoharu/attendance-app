@@ -25,12 +25,21 @@ const {onRequest} = require('firebase-functions/v2/https');
 
 exports.checkUserAttendance = onRequest({cors:true},async (req, res) => {
   try {
-    const {userId, type} = req.body; // type: 'checkin' or 'checkout'
+      // OPTIONS リクエスト（プリフライト）への対応
+      if (req.method === 'OPTIONS') {
+	  res.status(204).send('');
+	  return;
+      }
+
+      
+
+      const {userId, type} = req.body; // type: 'checkin' or 'checkout'
     
-    if (!userId || !type) {
-      res.status(400).send('Missing userId or type');
-      return;
-    }
+      if (!userId || !type) {
+	  console.log('userId is missing');
+	  res.status(400).send('Missing userId or type');
+	  return;
+      }
     
     // 日本時間（JST）を取得
     const now = new Date();
@@ -173,7 +182,14 @@ async function createAttendanceTask(userId, type, scheduleTime) {
 // 明日のタスクを作成
 exports.createDailyTasks = onRequest({cors:true},async (req, res) => {
   try {
-    const {userId} = req.body;
+    
+      // OPTIONS リクエスト（プリフライト）への対応
+      if (req.method === 'OPTIONS') {
+	  res.status(204).send('');
+	  return;
+      }
+
+      const {userId} = req.body;
     
     if (!userId) {
       res.status(400).send('Missing userId');
@@ -195,11 +211,11 @@ exports.createDailyTasks = onRequest({cors:true},async (req, res) => {
     const jstTomorrow = new Date(tomorrow.toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
     
     // 土日はスキップ
-    const dayOfWeek = jstTomorrow.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      res.status(200).send('Tomorrow is weekend - skipped');
-      return;
-    }
+//    const dayOfWeek = jstTomorrow.getDay();
+//    if (dayOfWeek === 0 || dayOfWeek === 6) {
+//      res.status(200).send('Tomorrow is weekend - skipped');
+//      return;
+//    }
     
     // 出勤タスク作成
     if (user.remindCheckinTime) {
