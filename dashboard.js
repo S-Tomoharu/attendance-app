@@ -444,7 +444,6 @@ async function loadReminderSettings() {
     }
 }
 
-// 設定保存
 document.getElementById('save-reminder-btn').addEventListener('click', async () => {
     const reminderEnabled = document.getElementById('reminder-enabled').checked;
     const email = document.getElementById('reminder-email').value.trim();
@@ -471,7 +470,24 @@ document.getElementById('save-reminder-btn').addEventListener('click', async () 
             remindCheckoutTime: checkoutTime
         });
         
-        document.getElementById('reminder-message').innerHTML = '<span style="color: #22c55e;">設定を保存しました</span>';
+        // リマインダーが有効な場合、翌日のタスクを作成
+        if (reminderEnabled) {
+            const response = await fetch('https://us-central1-attendance-app-f9a60.cloudfunctions.net/createDailyTasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId: userId })
+            });
+            
+            if (response.ok) {
+                document.getElementById('reminder-message').innerHTML = '<span style="color: #22c55e;">設定を保存し、明日のリマインダーを設定しました</span>';
+            } else {
+                document.getElementById('reminder-message').innerHTML = '<span style="color: #22c55e;">設定を保存しました（タスク作成は失敗）</span>';
+            }
+        } else {
+            document.getElementById('reminder-message').innerHTML = '<span style="color: #22c55e;">設定を保存しました</span>';
+        }
         
         // 3秒後にメッセージを消す
         setTimeout(() => {
@@ -483,3 +499,5 @@ document.getElementById('save-reminder-btn').addEventListener('click', async () 
         document.getElementById('reminder-message').innerHTML = '<span style="color: #ef4444;">保存に失敗しました</span>';
     }
 });
+
+
