@@ -23,7 +23,7 @@ const transporter = nodemailer.createTransport({
 
 const {onRequest} = require('firebase-functions/v2/https');
 
-exports.checkUserAttendance = onRequest({cors:true},async (req, res) => {
+exports.checkUserAttendance = onRequest({cors:true}async (req, res) => {
   try {
     const {userId, type} = req.body; // type: 'checkin' or 'checkout'
     
