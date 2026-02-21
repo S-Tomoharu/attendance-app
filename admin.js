@@ -161,10 +161,21 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-
 // リマインダーON/OFF切り替え
 async function toggleReminder(userId, enabled) {
     try {
+        // ONにする場合、設定があるか確認
+        if (enabled) {
+            const userRef = ref(database, `users/${userId}`);
+            const snapshot = await get(userRef);
+            const user = snapshot.val();
+            
+            if (!user.remindCheckinTime || !user.remindCheckoutTime || !user.email) {
+                alert('リマインダーをONにするには、メールアドレスと時刻を設定してください');
+                return;
+            }
+        }
+        
         const userRef = ref(database, `users/${userId}`);
         await update(userRef, {
             reminderEnabled: enabled
