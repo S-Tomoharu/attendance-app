@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { getDatabase, ref, get, update, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
 
 // Firebase設定
 const firebaseConfig = {
@@ -74,6 +75,7 @@ function displayUsers(users) {
 }
 
 // ユーザーカードを作成
+// ユーザーカードを作成
 function createUserCard(user) {
     const card = document.createElement('div');
     card.className = 'user-card';
@@ -111,10 +113,27 @@ function createUserCard(user) {
                 <span class="info-value">${lastCheckin || 'なし'}</span>
             </div>
         </div>
+        <div class="user-actions">
+            <button class="action-btn toggle-btn" data-userid="${user.userId}" data-enabled="${reminderEnabled}">
+                ${reminderEnabled ? '🔕 リマインダーOFF' : '🔔 リマインダーON'}
+            </button>
+            <button class="action-btn delete-btn" data-userid="${user.userId}" data-username="${escapeHtml(user.name)}">
+                🗑️ ユーザー削除
+            </button>
+        </div>
     `;
+
+    // イベントリスナーを追加
+    const toggleBtn = card.querySelector('.toggle-btn');
+    const deleteBtn = card.querySelector('.delete-btn');
+
+    toggleBtn.addEventListener('click', () => toggleReminder(user.userId, !reminderEnabled));
+    deleteBtn.addEventListener('click', () => deleteUser(user.userId, user.name));
 
     return card;
 }
+
+
 
 // 最終出勤日を取得
 function getLastCheckin(records) {
@@ -140,4 +159,41 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+
+// リマインダーON/OFF切り替え
+async function toggleReminder(userId, enabled) {
+    try {
+        const userRef = ref(database, `users/${userId}`);
+        await update(userRef, {
+            reminderEnabled: enabled
+        });
+
+        alert(`リマインダーを${enabled ? 'ON' : 'OFF'}にしました`);
+        await loadAllUsers(); // 再読み込み
+
+    } catch (error) {
+        console.error('Error toggling reminder:', error);
+        alert('エラーが発生しました');
+    }
+}
+
+// ユーザー削除
+async function deleteUser(userId, userName) {
+    const confirmed = confirm(`本当に「${userName}」を削除しますか？\n\nこの操作は取り消せません。`);
+    
+    if (!confirmed) return;
+
+    try {
+        const userRef = ref(database, `users/${userId}`);
+        await remove(userRef);
+
+        alert(`「${userName}」を削除しました`);
+        await loadAllUsers(); // 再読み込み
+
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('削除に失敗しました');
+    }
 }
