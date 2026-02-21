@@ -25,6 +25,11 @@ const empty = document.getElementById('empty');
 
 // ページ読み込み時
 window.addEventListener('DOMContentLoaded', () => {
+    // 初期状態：ローディング表示
+    loading.style.display = 'block';
+    usersGrid.style.display = 'none';
+    empty.style.display = 'none';
+
     onAuthStateChanged(auth, (user) => {
         if (user) {
             // ログイン済み
@@ -39,9 +44,9 @@ window.addEventListener('DOMContentLoaded', () => {
 // 全ユーザーを読み込み
 async function loadAllUsers() {
     try {
-        loading.style.display = 'block';
-        usersGrid.style.display = 'none';
-        empty.style.display = 'none';
+//        loading.style.display = 'block';
+//        usersGrid.style.display = 'none';
+//        empty.style.display = 'none';
 
         const usersRef = ref(database, 'users');
         const snapshot = await get(usersRef);
