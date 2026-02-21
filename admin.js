@@ -4,7 +4,7 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 
 // Firebase設定
 const firebaseConfig = {
-    apiKey: "AIzaSyBSsPI41НННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННННeyXKWWc",
+    apiKey: "AIzaSyDoGXkV8qcg0leHZ3SpKekikJ8JaQW70s4",
     authDomain: "attendance-app-f9a60.firebaseapp.com",
     databaseURL: "https://attendance-app-f9a60-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "attendance-app-f9a60",
