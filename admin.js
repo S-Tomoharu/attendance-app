@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import { getDatabase, ref, get, update, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
 // Firebase設定
 const firebaseConfig = {
@@ -16,6 +16,7 @@ const firebaseConfig = {
 // Firebase初期化
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 
 // DOM要素
 const loading = document.getElementById('loading');
@@ -23,8 +24,16 @@ const usersGrid = document.getElementById('users-grid');
 const empty = document.getElementById('empty');
 
 // ページ読み込み時
-window.addEventListener('DOMContentLoaded', async () => {
-    await loadAllUsers();
+window.addEventListener('DOMContentLoaded', () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // ログイン済み
+            loadAllUsers();
+        } else {
+            // 未ログイン → ログイン画面へ
+            window.location.href = 'admin-login.html';
+        }
+    });
 });
 
 // 全ユーザーを読み込み
@@ -208,3 +217,17 @@ async function deleteUser(userId, userName) {
         alert('削除に失敗しました');
     }
 }
+
+// ログアウト
+async function logout() {
+    try {
+        await signOut(auth);
+        window.location.href = 'admin-login.html';
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+}
+
+// グローバルに公開（HTML から呼べるように）
+window.logout = logout;
+

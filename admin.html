@@ -185,12 +185,18 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>👥 管理者画面</h1>
-            <p class="subtitle">全ユーザーのリマインダー設定を確認</p>
-            <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
-        </div>
 
+        
+
+      <div class="header">
+	<h1>👥 管理者画面</h1>
+	<p class="subtitle">全ユーザーのリマインダー設定を確認</p>
+	<div style="margin-top: 15px;">
+          <a href="dashboard.html" class="back-link">← ダッシュボードに戻る</a>
+          <button onclick="logout()" style="margin-left: 20px; padding: 8px 16px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">ログアウト</button>
+	</div>
+      </div>
+	
         <div id="loading" class="loading">読み込み中...</div>
         <div id="users-grid" class="users-grid" style="display: none;"></div>
         <div id="empty" class="empty" style="display: none;">
