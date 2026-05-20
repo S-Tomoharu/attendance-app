@@ -1,6 +1,7 @@
 // Firebase設定
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 // Firebase設定情報
 const firebaseConfig = {
@@ -16,6 +17,7 @@ const firebaseConfig = {
 // Firebase初期化
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 
 // カスタム確認ダイアログ
 function customConfirm(message) {
@@ -24,24 +26,24 @@ function customConfirm(message) {
         const messageEl = document.getElementById('confirm-message');
         const okBtn = document.getElementById('confirm-ok');
         const cancelBtn = document.getElementById('confirm-cancel');
-        
+
         messageEl.textContent = message;
         dialog.style.display = 'flex';
-        
+
         const handleOk = () => {
             dialog.style.display = 'none';
             okBtn.removeEventListener('click', handleOk);
             cancelBtn.removeEventListener('click', handleCancel);
             resolve(true);
         };
-        
+
         const handleCancel = () => {
             dialog.style.display = 'none';
             okBtn.removeEventListener('click', handleOk);
             cancelBtn.removeEventListener('click', handleCancel);
             resolve(false);
         };
-        
+
         okBtn.addEventListener('click', handleOk);
         cancelBtn.addEventListener('click', handleCancel);
     });
@@ -77,15 +79,15 @@ function showMessage(text, type) {
 async function loadTodayStatus() {
     const userId = localStorage.getItem('userId');
     const today = getTodayDate();
-    const yearMonth = today.substring(0, 7); // "2026-01"
-    
+    const yearMonth = today.substring(0, 7);
+
     try {
         const snapshot = await get(ref(database, `users/${userId}/records/${yearMonth}/${today}`));
         if (snapshot.exists()) {
             const data = snapshot.val();
             const checkin = data.checkin || '未記録';
             const checkout = data.checkout || '未記録';
-            document.getElementById('today-status').innerHTML = 
+            document.getElementById('today-status').innerHTML =
                 `<strong>今日の記録</strong><br>出勤　${checkin}<br>退勤　${checkout}`;
         } else {
             document.getElementById('today-status').innerHTML = '<strong>今日の記録</strong><br>未記録';
@@ -95,30 +97,26 @@ async function loadTodayStatus() {
     }
 }
 
-
-
 // 出勤記録関数
-
-
 async function recordCheckin() {
     const userId = localStorage.getItem('userId');
     const today = getTodayDate();
-    const yearMonth = today.substring(0, 7); // "2026-01"
+    const yearMonth = today.substring(0, 7);
     const time = getCurrentTime();
-    
+
     try {
         const snapshot = await get(ref(database, `users/${userId}/records/${yearMonth}/${today}/checkin`));
-        
+
         if (snapshot.exists()) {
             const existingTime = snapshot.val();
             const confirmOverwrite = await customConfirm(`既に出勤記録があります（${existingTime}）\n上書きしますか？`);
-            
+
             if (!confirmOverwrite) {
                 showMessage('出勤記録をキャンセルしました', 'info');
                 return;
             }
         }
-        
+
         await set(ref(database, `users/${userId}/records/${yearMonth}/${today}/checkin`), time);
         showMessage(`出勤記録: ${time}`, 'success');
         loadTodayStatus();
@@ -128,29 +126,26 @@ async function recordCheckin() {
     }
 }
 
-
-
-
 // 退勤記録関数
 async function recordCheckout() {
     const userId = localStorage.getItem('userId');
     const today = getTodayDate();
-    const yearMonth = today.substring(0, 7); // "2026-01"
+    const yearMonth = today.substring(0, 7);
     const time = getCurrentTime();
-    
+
     try {
         const snapshot = await get(ref(database, `users/${userId}/records/${yearMonth}/${today}/checkout`));
-        
+
         if (snapshot.exists()) {
             const existingTime = snapshot.val();
             const confirmOverwrite = await customConfirm(`既に退勤記録があります（${existingTime}）\n上書きしますか？`);
-            
+
             if (!confirmOverwrite) {
                 showMessage('退勤記録をキャンセルしました', 'info');
                 return;
             }
         }
-        
+
         await set(ref(database, `users/${userId}/records/${yearMonth}/${today}/checkout`), time);
         showMessage(`退勤記録: ${time}`, 'success');
         loadTodayStatus();
@@ -160,33 +155,37 @@ async function recordCheckout() {
     }
 }
 
-
-
 // URLパラメータをチェック
 const params = new URLSearchParams(window.location.search);
 const action = params.get('action');
 
-// ログインチェック
-let userId = localStorage.getItem('userId');
-let userName = localStorage.getItem('userName');
+// 認証状態を監視してから起動
+onAuthStateChanged(auth, (user) => {
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
 
-if (userId && userName) {
-    // ログイン済み
-    document.getElementById('user-name').textContent = `${userName} さん`;
-    
-    // actionがあれば即座に実行
-    if (action === 'checkin') {
-        recordCheckin();
-    } else if (action === 'checkout') {
-        recordCheckout();
+    if (user && userId && userName) {
+        // Firebase Auth済み＆ローカルストレージにユーザー情報あり → 正常ログイン状態
+        document.getElementById('user-name').textContent = `${userName} さん`;
+
+        // actionがあれば即座に実行
+        if (action === 'checkin') {
+            recordCheckin();
+        } else if (action === 'checkout') {
+            recordCheckout();
+        }
+
+        // 今日の記録を表示
+        loadTodayStatus();
+    } else {
+        // 未認証 → ログイン画面へ
+        window.location.href = 'login.html';
     }
-} else {
-    // ログインしていない場合はログイン画面へ
-    window.location.href = 'login.html';
-}
+});
 
 // ログアウト
-document.getElementById('logout-btn').addEventListener('click', () => {
+document.getElementById('logout-btn').addEventListener('click', async () => {
+    await signOut(auth);
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     window.location.href = 'login.html';
@@ -207,6 +206,3 @@ document.getElementById('checkin-btn').addEventListener('click', recordCheckin);
 
 // 退勤ボタン
 document.getElementById('checkout-btn').addEventListener('click', recordCheckout);
-
-// ページ読み込み時に今日の記録を表示
-loadTodayStatus();

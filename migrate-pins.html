@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>pins移行ツール</title>
+</head>
+<body>
+<h2>pins ノード移行ツール</h2>
+<p>このページを開くと、usersノードのname/pinをpinsノードにコピーします。</p>
+<div id="status">実行中...</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getDatabase, ref, get, set } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDoGXkV8qcg0leHZ3SpKekikJ8JaQW70s4",
+    authDomain: "attendance-app-f9a60.firebaseapp.com",
+    databaseURL: "https://attendance-app-f9a60-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "attendance-app-f9a60",
+    storageBucket: "attendance-app-f9a60.firebasestorage.app",
+    messagingSenderId: "940337246680",
+    appId: "1:940337246680:web:c075eeca6e436db0e702ad"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+async function migrate() {
+    const status = document.getElementById('status');
+    try {
+        const usersSnapshot = await get(ref(database, 'users'));
+        if (!usersSnapshot.exists()) {
+            status.textContent = 'usersデータが見つかりません';
+            return;
+        }
+
+        const users = usersSnapshot.val();
+        let count = 0;
+
+        for (const [userId, userData] of Object.entries(users)) {
+            if (userId === 'null' || !userData.name) continue;
+            await set(ref(database, `pins/${userId}`), {
+                name: userData.name,
+                pin: userData.pin || ''
+            });
+            count++;
+            status.textContent = `${count}件処理中...`;
+        }
+
+        status.textContent = `✅ 完了！${count}件のユーザーをpinsノードにコピーしました。このページは閉じて構いません。`;
+    } catch (error) {
+        status.textContent = `❌ エラー: ${error.message}`;
+        console.error(error);
+    }
+}
+
+migrate();
+</script>
+</body>
+</html>

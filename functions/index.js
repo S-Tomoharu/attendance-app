@@ -341,7 +341,7 @@ exports.createDailyTasks = onRequest({cors: true}, async (req, res) => {
 
 exports.scheduleDailyTasks = onSchedule(
   {
-    schedule: '45 3 * * *',  // UTC 14:00 = JST 23:00
+    schedule: '0 14 * * *',  // UTC 14:00 = JST 23:00
     timeZone: 'UTC'
   },
   async (event) => {
