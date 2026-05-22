@@ -1,5 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getDatabase, ref, get, set, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDoGXkV8qcg0leHZ3SpKekikJ8JaQW70s4",
@@ -13,23 +14,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 
 const userId = localStorage.getItem('userId');
 const userName = localStorage.getItem('userName');
-
-// ログインチェック
-if (!userId || !userName) {
-    window.location.href = 'login.html';
-}
-
-document.getElementById('user-name').textContent = userName;
-
-// ログアウト
-document.getElementById('logout-btn').addEventListener('click', () => {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    window.location.href = 'login.html';
-});
 
 // タブ切り替え
 document.querySelectorAll('.tab').forEach(tab => {
@@ -262,8 +250,22 @@ document.getElementById('save-reminder-btn').addEventListener('click', async () 
 document.getElementById('calendar-month').addEventListener('change', displayCalendar);
 document.getElementById('list-month').addEventListener('change', displayList);
 
-// 初期化
-initMonthSelects();
-displayCalendar();
-displayList();
-loadSettings();
+// ログアウト
+document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    window.location.href = 'login.html';
+});
+
+// 認証確認してから起動
+onAuthStateChanged(auth, (user) => {
+    if (user && userId && userName) {
+        document.getElementById('user-name').textContent = userName;
+        initMonthSelects();
+        displayCalendar();
+        displayList();
+        loadSettings();
+    } else {
+        window.location.href = 'login.html';
+    }
+});
