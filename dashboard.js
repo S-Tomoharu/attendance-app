@@ -193,7 +193,29 @@ document.getElementById('export-pdf-btn').addEventListener('click', async () => 
     doc.save(`出退勤_${yearMonth}.pdf`);
 });
 
-// 修正タブ
+// 修正タブ：日付選択時に既存データを読み込む
+document.getElementById('edit-date').addEventListener('change', async () => {
+    const date = document.getElementById('edit-date').value;
+    if (!date) return;
+
+    const yearMonth = date.substring(0, 7);
+    const snapshot = await get(ref(database, `users/${userId}/records/${yearMonth}/${date}`));
+
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        document.getElementById('edit-checkin').value = data.checkin || '';
+        document.getElementById('edit-checkout').value = data.checkout || '';
+        document.getElementById('edit-note').value = data.note || '';
+        document.getElementById('edit-absent').checked = data.absent || false;
+    } else {
+        // 記録なし → フィールドをクリア
+        document.getElementById('edit-checkin').value = '';
+        document.getElementById('edit-checkout').value = '';
+        document.getElementById('edit-note').value = '';
+        document.getElementById('edit-absent').checked = false;
+    }
+});
+
 document.getElementById('save-edit-btn').addEventListener('click', async () => {
     const date = document.getElementById('edit-date').value;
     if (!date) { alert('日付を入力してください'); return; }
