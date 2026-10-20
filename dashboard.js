@@ -1,6 +1,7 @@
 // Firebase設定
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getDatabase, ref, get, set, remove, update} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 // Firebase設定情報
 const firebaseConfig = {
@@ -16,19 +17,25 @@ const firebaseConfig = {
 // Firebase初期化
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 
-// ログインチェック
+// ログインチェック（Firebase Auth確認）
 const userId = localStorage.getItem('userId');
 const userName = localStorage.getItem('userName');
 
-if (!userId || !userName) {
-    window.location.href = 'login.html';
-} else {
-    document.getElementById('user-name').textContent = `${userName} さん`;
-}
+onAuthStateChanged(auth, (user) => {
+    if (!user || !userId || !userName) {
+        window.location.href = 'login.html';
+    } else {
+        document.getElementById('user-name').textContent = `${userName} さん`;
+        // 認証完了後に今月のデータを表示
+        generateMonthOptions();
+    }
+});
 
 // ログアウト
-document.getElementById('logout-btn').addEventListener('click', () => {
+document.getElementById('logout-btn').addEventListener('click', async () => {
+    await signOut(auth);
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     window.location.href = 'login.html';
@@ -76,10 +83,12 @@ function generateMonthOptions() {
         listSelect.appendChild(option2);
     }
     
-    // デフォルトで今月を選択
+    // デフォルトで今月を選択して表示
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     calendarSelect.value = currentMonth;
     listSelect.value = currentMonth;
+    displayCalendar(currentMonth);
+    displayList(currentMonth);
 }
 
 // カレンダー表示
@@ -289,12 +298,7 @@ document.getElementById('edit-date').addEventListener('change', async (e) => {
     }
 });
 
-// 初期化
-generateMonthOptions();
-const now = new Date();
-const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-displayCalendar(currentMonth);
-displayList(currentMonth);
+// 初期化はonAuthStateChanged内で行う
 
 // CSV出力機能
 document.getElementById('export-csv-btn').addEventListener('click', async () => {
@@ -337,7 +341,7 @@ document.getElementById('export-csv-btn').addEventListener('click', async () => 
     }
     
     // ダウンロード
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
